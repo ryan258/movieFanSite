@@ -46,4 +46,21 @@ router.get(`/movie/:id`, (req, res, next) => {
   })
 })
 
+router.post('/search', (req, res, next) => {
+  // res.send('sanity check')
+  //! posted form data resides on req.body by name(s)
+  const userSearchTerm = encodeURI(req.body.movieSearch)
+  const cat = req.body.cat
+  const movieUrl = `${apiBaseUrl}/search/${cat}?query=${userSearchTerm}&api_key=${apiKey}`
+  // res.send(movieUrl)
+  request.get(movieUrl, (error, response, movieData) => {
+    let parsedData = JSON.parse(movieData)
+    // res.json(parsedData)
+    if (cat == 'person') {
+      parsedData.results = parsedData.results[0].known_for
+    }
+    res.render('index', { parsedData: parsedData.results })
+  })
+})
+
 module.exports = router
